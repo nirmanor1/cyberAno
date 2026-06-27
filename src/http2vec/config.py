@@ -115,9 +115,10 @@ class ClassifierConfig:
     test_size: float = 0.3
     random_state: int = 42
     scale_features: bool = True
-    lr_max_iter: int = 500
+    lr_max_iter: int = 2000
     rf_n_estimators: int = 100
     svc_c: float = 1.0
+    svc_max_iter: int = 5000
     gb_n_estimators: int = 100
     knn_n_neighbors: int = 15
     iforest_n_estimators: int = 100
@@ -137,8 +138,9 @@ class MlpHeadConfig:
 
     hidden_size: int = 256
     dropout: float = 0.2
-    epochs: int = 15
-    learning_rate: float = 1e-3
+    epochs: int = 40
+    patience: int = 8
+    learning_rate: float = 5e-4
     batch_size: int = 64
     weight_decay: float = 1e-4
     val_fraction: float = 0.15
@@ -147,6 +149,8 @@ class MlpHeadConfig:
     def __post_init__(self) -> None:
         if self.hidden_size < 1:
             raise ValueError("hidden_size must be >= 1.")
+        if self.patience < 1:
+            raise ValueError("patience must be >= 1.")
         if not 0.0 <= self.dropout < 1.0:
             raise ValueError("dropout must be in the half-open interval [0, 1).")
         if not 0.0 <= self.val_fraction < 1.0:

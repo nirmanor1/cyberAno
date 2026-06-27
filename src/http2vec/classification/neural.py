@@ -99,6 +99,11 @@ class MlpClassifierHead:
         batch_size = max(1, int(self._config.batch_size))
         rng = np.random.default_rng(self._config.random_state)
 
+        patience = max(1, int(self._config.patience))
+        best_val_loss = float("inf")
+        best_state: dict | None = None
+        epochs_without_improvement = 0
+
         history: list[dict] = []
         for epoch in range(1, int(self._config.epochs) + 1):
             model.train()
@@ -131,16 +136,43 @@ class MlpClassifierHead:
                     val_pred = torch.argmax(val_logits, dim=1).cpu().numpy()
                 record["val_loss"] = val_loss
                 record["val_f1"] = _binary_f1(y_val, val_pred)
+
+                # Early stopping: snapshot the best-validation weights and stop if
+                # the validation loss has not improved for ``patience`` epochs, so
+                # the returned model is the best epoch rather than a noisy late one.
+                if val_loss < best_val_loss - 1e-4:
+                    best_val_loss = val_loss
+                    best_state = {
+                        key: value.detach().cpu().clone()
+                        for key, value in model.state_dict().items()
+                    }
+                    epochs_without_improvement = 0
+                else:
+                    epochs_without_improvement += 1
             history.append(record)
+
+            if val_x.shape[0] > 0 and epochs_without_improvement >= patience:
+                break
+
+        # Restore the best-validation weights (if any) before scoring.
+        if best_state is not None:
+            model.load_state_dict(best_state)
 
         self._model = model
         self.history = history
         if history:
-            logger.info(
-                "Trained MLP head for %d epoch(s) (final train_loss=%.4f).",
-                len(history),
-                history[-1]["train_loss"],
-            )
+            if best_state is not None:
+                logger.info(
+                    "Trained MLP head: %d epoch(s) run, best val_loss=%.4f (restored).",
+                    len(history),
+                    best_val_loss,
+                )
+            else:
+                logger.info(
+                    "Trained MLP head: %d epoch(s), final train_loss=%.4f.",
+                    len(history),
+                    history[-1]["train_loss"],
+                )
         return self
 
     def predict(self, X: ArrayLike) -> np.ndarray:

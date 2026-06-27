@@ -51,6 +51,37 @@ in the `http2vec` package; cells just orchestrate it.
 """
     )
 
+    md(
+        """
+## Colab bootstrap
+
+When this notebook is opened directly from GitHub in Google Colab, only the
+notebook file is present - the `http2vec` package and the CSIC2010 dataset are
+not. This cell clones the repo, installs the package, and downloads the data. It
+is a no-op when run locally (where the repo is already present), so the same
+notebook works in both places.
+"""
+    )
+
+    code(
+        """
+import sys, os, pathlib
+
+IN_COLAB = "google.colab" in sys.modules
+if IN_COLAB:
+    os.chdir("/content")
+    !rm -rf /content/cyberAno /cyberAno
+    !git clone https://github.com/nirmanor1/cyberAno.git /content/cyberAno
+    os.chdir("/content/cyberAno")
+    !pip install -q -e . sentencepiece
+    if not pathlib.Path("/content/cyberAno/data/raw/normalTrafficTraining.txt").exists():
+        !python scripts/download_data.py --dest data/raw
+    print("cwd is now:", os.getcwd())
+else:
+    print("Local run: skipping Colab bootstrap.")
+"""
+    )
+
     md("## 0. Setup")
 
     code(

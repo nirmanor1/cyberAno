@@ -41,6 +41,7 @@ def train_bbpe_tokenizer(
         The trained :class:`transformers.RobertaTokenizerFast`.
     """
     from tokenizers import ByteLevelBPETokenizer
+    from tokenizers.processors import RobertaProcessing
     from transformers import RobertaTokenizerFast
 
     output_dir = Path(output_dir)
@@ -53,11 +54,23 @@ def train_bbpe_tokenizer(
         min_frequency=config.min_frequency,
         special_tokens=SPECIAL_TOKENS,
     )
+    # Add RoBERTa's <s> ... </s> post-processing so encodings carry BOS/EOS exactly
+    # as RobertaTokenizerFast expects.
+    bbpe._tokenizer.post_processor = RobertaProcessing(
+        ("</s>", bbpe.token_to_id("</s>")),
+        ("<s>", bbpe.token_to_id("<s>")),
+    )
+    # Persist vocab/merges (for reference) and the full fast-tokenizer
+    # serialization, which we load below.
     bbpe.save_model(str(output_dir))
+    tokenizer_file = output_dir / "tokenizer.json"
+    bbpe.save(str(tokenizer_file))
 
+    # Build the fast tokenizer directly from tokenizer.json. This avoids
+    # transformers' slow->fast conversion path, which needs ``sentencepiece`` and
+    # is broken for byte-level BPE on some transformers versions.
     tokenizer = RobertaTokenizerFast(
-        vocab_file=str(output_dir / "vocab.json"),
-        merges_file=str(output_dir / "merges.txt"),
+        tokenizer_file=str(tokenizer_file),
         model_max_length=config.max_length,
         bos_token="<s>",
         eos_token="</s>",

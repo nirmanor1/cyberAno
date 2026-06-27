@@ -103,7 +103,9 @@ def build_classifiers(
         return SupervisedClassifier(
             "random_forest",
             RandomForestClassifier(
-                n_estimators=config.rf_n_estimators, random_state=config.random_state
+                n_estimators=config.rf_n_estimators,
+                random_state=config.random_state,
+                n_jobs=-1,
             ),
             scale=False,
         )
@@ -113,17 +115,26 @@ def build_classifiers(
 
         return SupervisedClassifier(
             "linear_svc",
-            LinearSVC(C=config.svc_c, random_state=config.random_state),
+            LinearSVC(
+                C=config.svc_c,
+                random_state=config.random_state,
+                max_iter=config.svc_max_iter,
+            ),
             scale=config.scale_features,
         )
 
     def gradient_boosting() -> SupervisedClassifier:
-        from sklearn.ensemble import GradientBoostingClassifier
+        # HistGradientBoostingClassifier is the histogram-based, vectorised
+        # gradient-boosting implementation; it is dramatically faster than
+        # GradientBoostingClassifier on the high-dimensional (3072-d) embeddings
+        # while giving comparable accuracy. ``gb_n_estimators`` maps to its
+        # ``max_iter`` (number of boosting iterations).
+        from sklearn.ensemble import HistGradientBoostingClassifier
 
         return SupervisedClassifier(
             "gradient_boosting",
-            GradientBoostingClassifier(
-                n_estimators=config.gb_n_estimators, random_state=config.random_state
+            HistGradientBoostingClassifier(
+                max_iter=config.gb_n_estimators, random_state=config.random_state
             ),
             scale=False,
         )
@@ -133,7 +144,7 @@ def build_classifiers(
 
         return SupervisedClassifier(
             "knn",
-            KNeighborsClassifier(n_neighbors=config.knn_n_neighbors),
+            KNeighborsClassifier(n_neighbors=config.knn_n_neighbors, n_jobs=-1),
             scale=config.scale_features,
         )
 
