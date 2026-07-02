@@ -132,17 +132,17 @@ def show(fig, name):
 ### Choose a configuration profile
 
 The default here is the **`small`** profile: the full paper-size RoBERTa on a
-seeded **40% subset** for **5 epochs** - a lighter stand-in for the full run.
+seeded **60% subset** for **5 epochs** - a lighter stand-in for the full run.
 Both profiles are heavy enough that a GPU (CUDA) is recommended.
 
-- `small` - full paper-size model on a seeded 40% subset, 5 epochs (default here).
+- `small` - full paper-size model on a seeded 60% subset, 5 epochs (default here).
 - `paper` - full dataset, paper-size RoBERTa, 10 epochs.
 """
     )
 
     code(
         """
-PROFILE = "small"       # "small" (40% / 5ep, full model) | "paper" (full / 10ep)
+PROFILE = "small"       # "small" (60% / 5ep, full model) | "paper" (full / 10ep)
 EPOCHS_OVERRIDE = None  # None -> use the profile's default epochs; set an int to override
 
 RAW_DIR = pathlib.Path("data/raw")
@@ -343,7 +343,7 @@ programmatic `Http2VecPipeline.run()` share exactly one implementation.
 
 > This trains the RoBERTa on the selected profile's normal traffic and embeds its
 > requests - heavy, so a GPU is recommended. The default `small` profile uses the
-> full-size model on a 40% subset for 5 epochs; `paper` is the full run.
+> full-size model on a 60% subset for 5 epochs; `paper` is the full run.
 """
     )
 
@@ -748,7 +748,7 @@ comparison_all.round(3)
   reach strong F1/MCC, the MLP head adds a learnable comparison point, and the
   unsupervised detectors give a per-request anomaly score without training labels.
 - **Caveats:** the numbers reflect the selected profile (default `small`: the
-  full-size model on a 40% subset, 5 epochs); use `paper` for the full run.
+  full-size model on a 60% subset, 5 epochs); use `paper` for the full run.
 
 A full critical evaluation (claims vs evidence, reproducibility, limitations) is
 left for the written report; the saved JSON/CSV/figures back it with exact numbers.

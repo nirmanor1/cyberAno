@@ -2,7 +2,7 @@
 
 Profiles
 --------
-- :meth:`ExperimentConfig.small` - the full paper-size model on a seeded 40% subset,
+- :meth:`ExperimentConfig.small` - the full paper-size model on a seeded 60% subset,
   5 epochs; a lighter stand-in for the full run (the default).
 - :meth:`ExperimentConfig.paper`  - the hyper-parameters reported in the paper
   (full data, 10 epochs; heavy, intended for a real GPU run).
@@ -234,13 +234,13 @@ class ExperimentConfig:
         seed: int = 42,
         num_train_epochs: int = 5,
     ) -> "ExperimentConfig":
-        """Full paper-size model on a seeded 40% subset, fewer epochs.
+        """Full paper-size model on a seeded 60% subset, fewer epochs.
 
-        A lighter stand-in for :meth:`paper`: same architecture, ~40% of the data
+        A lighter stand-in for :meth:`paper`: same architecture, ~60% of the data
         and 5 epochs by default.
         """
         return cls(
-            data=DataConfig(raw_dir=Path(raw_dir), subset_fraction=0.4),
+            data=DataConfig(raw_dir=Path(raw_dir), subset_fraction=0.6),
             tokenizer=TokenizerConfig(vocab_size=30000, max_length=512),
             model=ModelConfig(
                 hidden_size=768,

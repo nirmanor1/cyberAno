@@ -31,12 +31,3 @@ Alternatively run the helper (downloads only over HTTPS, verifies the files land
 ```
 python scripts/download_data.py --dest data/raw
 ```
-
-If the automatic download fails (the upstream host occasionally changes), download
-the files manually from the official page and drop them into `data/raw/`.
-
-## Notes
-
-- Raw data files are intentionally **not** committed; keep them local.
-- The requests contain real attack payloads (SQL injection, XSS, CRLF, etc.).
-  They are always handled as opaque text and are never executed or rendered.

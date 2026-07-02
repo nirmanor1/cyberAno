@@ -58,7 +58,7 @@ See [`data/README.md`](data/README.md). Place the three CSIC2010 text files in
 
 Configuration profiles (in `src/http2vec/config.py`):
 
-- `ExperimentConfig.small()` - full paper-size model on a seeded 40% subset, 5 epochs (the default).
+- `ExperimentConfig.small()` - full paper-size model on a seeded 60% subset, 5 epochs (the default).
 - `ExperimentConfig.paper()` - the hyper-parameters reported in the paper (full data, 10 epochs; GPU + hours).
 
 Programmatic end-to-end run:
@@ -86,7 +86,7 @@ python scripts/build_notebook.py        # writes notebooks/http2vec_analysis.ipy
 
 The notebook reads the CSIC2010 files from `data/raw/`, so download the dataset
 first (see the Dataset section). It defaults to the `small` profile (full-size
-model, seeded 40% subset, 5 epochs); switch the `PROFILE` cell to `"paper"` for
+model, seeded 60% subset, 5 epochs); switch the `PROFILE` cell to `"paper"` for
 the full run.
 
 To execute it headlessly and save the outputs:
